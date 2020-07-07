@@ -1,4 +1,4 @@
-import { initializeBlock, useBase, useRecords, expandRecord, useGlobalConfig, TextButton, FieldPickerSynced, TablePickerSynced, ViewPickerSynced } from '@airtable/blocks/ui'
+import { initializeBlock, useBase, useRecords, expandRecord, useGlobalConfig, TextButton, FieldPickerSynced, TablePickerSynced, Box, RecordCardList, ViewPickerSynced } from '@airtable/blocks/ui'
 import React from 'react'
 
 function TodoBlock() {
@@ -13,12 +13,26 @@ function TodoBlock() {
     const completedField = table ? table.getFieldByIdIfExists(completedFieldId) : null
 
     const toggle = (record) => {
-        table.updateRecordAsync(
+        table.updateRecordAsync (
             record, {[completedFieldId]: !record.getCellValue(completedFieldId)}
         )
     }
 
     const records = useRecords(view)
+    
+
+    const opts = {
+        sorts: [
+            {field: table.getFieldByName('Amount'), direction: 'desc'},
+            {field: table.getFieldByName('Name')}
+        ],
+        fields: [
+            completedFieldId
+        ],
+    }
+    
+    const recordResults = useRecords(table, opts)
+
 
     const tasks = records && completedField ? records.map(record => (
             <Task
@@ -35,6 +49,11 @@ function TodoBlock() {
             <ViewPickerSynced table={table} globalConfigKey="selectedViewId" />
             <FieldPickerSynced table={table} globalConfigKey="completedFieldId" />
             {tasks}
+            <Box height="300px" border="thick" backgroundColor="lightGray1">
+                <RecordCardList 
+                    records={recordResults} 
+                />
+            </Box>
         </div>
     )
 }
